@@ -5,6 +5,7 @@ import pandas as pd
 from io import BytesIO
 from dotenv import load_dotenv
 from os import getenv
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
@@ -12,6 +13,18 @@ app = FastAPI()
 load_dotenv()
 
 base_url = getenv("EXCEL_URL")
+
+origin = {
+    'http://localhost:5173',
+}
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origin,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 @app.get("/positions")
 async def get_options():
@@ -30,14 +43,12 @@ async def get_options():
 
         return JSONResponse(
             content={
-                "datos": {
                     "positions": positions,
                     "technologies": technologies,
                     "ubication": ubication,
                     "english_level": english_level,
                     "years_experience": years_experience
                 }
-            }
         )
     
     except requests.exceptions.HTTPError as errh:
