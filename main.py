@@ -8,13 +8,12 @@ from os import getenv
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
-
 app = FastAPI()
 handler = Mangum(app)
 
 load_dotenv()
 
-base_url = getenv("EXCEL_URL")
+# base_url = getenv("EXCEL_URL")
 
 origin = {
     'http://localhost:5173',
@@ -31,7 +30,7 @@ app.add_middleware(
 @app.get("/positions")
 async def get_options():
     try:
-        response = requests.get(base_url)
+        response = requests.get(getenv("EXCEL_URL"))
         response.raise_for_status()
         
         excel_data = BytesIO(response.content)
@@ -42,6 +41,8 @@ async def get_options():
         ubication = df["Ubication"].dropna().tolist()
         english_level = df["Level English"].dropna().tolist()
         years_experience = df["Years Experience"].dropna().tolist()
+        salaries = df["Salaries"].dropna().tolist()
+        promedios = df["Salaries"].groupby(df["Category"]).mean().to_dict()
 
         return JSONResponse(
             content={
@@ -49,7 +50,9 @@ async def get_options():
                     "technologies": technologies,
                     "ubication": ubication,
                     "english_level": english_level,
-                    "years_experience": years_experience
+                    "years_experience": years_experience,
+                    "salaries": salaries,
+                    "despDesarrolladores": promedios
                 }
         )
     
@@ -64,3 +67,33 @@ async def get_options():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing the Excel file: {e}")
 
+
+@app.get("/getCities/{country}")
+def get_cities(country):
+    if country == "Colombia":
+        url = "https://api-colombia.com/api/v1/City"
+    else:
+        return "Country not found"
+    try:
+        response = requests.get(url)
+        response = response.json()
+        placeNames = []
+        [place["name"] for place in response if placeNames.append(place["name"])]
+        # myDf = pd.DataFrame(placeNames, columns=["Cities"])
+        # myDf.to_excel('output.xlsx', index=False)
+        return JSONResponse(
+            content={
+                "cities": placeNames
+            }
+        )
+
+    except requests.exceptions.HTTPError as errh:
+        raise HTTPException(status_code=500, detail=f"HTTP error: {errh}")
+    except requests.exceptions.ConnectionError as errc:
+        raise HTTPException(status_code=500, detail=f"Connection error: {errc}")
+    except requests.exceptions.Timeout as errt:
+        raise HTTPException(status_code=500, detail=f"Timeout: {errt}")
+    except requests.exceptions.RequestException as err:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {err}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing the Excel file: {e}")
