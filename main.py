@@ -42,6 +42,7 @@ async def get_options():
         english_level = df["Level English"].dropna().tolist()
         years_experience = df["Years Experience"].dropna().tolist()
         salaries = df["Salaries"].dropna().tolist()
+        categories = df["Category"].dropna().tolist()
         promedios = df["Salaries"].groupby(df["Category"]).mean().to_dict()
 
         return JSONResponse(
@@ -52,6 +53,7 @@ async def get_options():
                     "english_level": english_level,
                     "years_experience": years_experience,
                     "salaries": salaries,
+                    "categories": categories,
                     "despDesarrolladores": promedios
                 }
         )
