@@ -6,9 +6,11 @@ from io import BytesIO
 from dotenv import load_dotenv
 from os import getenv
 from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
 
 
 app = FastAPI()
+handler = Mangum(app)
 
 load_dotenv()
 
