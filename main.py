@@ -8,6 +8,8 @@ from os import getenv
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
+from models.cotization import Cotization
+
 app = FastAPI()
 handler = Mangum(app)
 
@@ -43,7 +45,7 @@ async def get_options():
         years_experience = df["Years Experience"].dropna().tolist()
         salaries = df["Salaries"].dropna().tolist()
         categories = df["Category"].dropna().tolist()
-        promedios = df["Salaries"].groupby(df["Category"]).mean().to_dict()
+        promedios = df["Salaries"].groupby(df["Positions"]).median().to_dict()
 
         return JSONResponse(
             content={
@@ -89,6 +91,45 @@ def get_cities(country):
             }
         )
 
+    except requests.exceptions.HTTPError as errh:
+        raise HTTPException(status_code=500, detail=f"HTTP error: {errh}")
+    except requests.exceptions.ConnectionError as errc:
+        raise HTTPException(status_code=500, detail=f"Connection error: {errc}")
+    except requests.exceptions.Timeout as errt:
+        raise HTTPException(status_code=500, detail=f"Timeout: {errt}")
+    except requests.exceptions.RequestException as err:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {err}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing the Excel file: {e}")
+
+
+@app.post("/cotization")
+def get_current_info(currentData: Cotization):
+    try:
+        response = requests.get(getenv("EXCEL_URL"))
+        response.raise_for_status()
+        
+        excel_data = BytesIO(response.content)
+        df = pd.read_excel(excel_data)
+        
+        position = currentData.position
+        technology = currentData.technology
+        ubication = currentData.ubication
+        english_level = currentData.english_level
+        years_experience = currentData.years_experience
+        
+        salary = df[(df["Positions"] == position) & 
+                    (df["Technologies"] == technology) & 
+                    (df["Ubication"] == ubication) & 
+                    (df["Level English"] == english_level) & 
+                    (df["Years Experience"] == years_experience)]["Salaries"].values[0]
+        
+        return JSONResponse(
+            content={
+                "salary": salary
+            }
+        )
+    
     except requests.exceptions.HTTPError as errh:
         raise HTTPException(status_code=500, detail=f"HTTP error: {errh}")
     except requests.exceptions.ConnectionError as errc:
