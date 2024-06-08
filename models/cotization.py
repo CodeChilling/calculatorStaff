@@ -1,4 +1,4 @@
-from lambda_layerF.python.pydantic.main import BaseModel
+from pydantic import BaseModel
 
 
 class Cotization(BaseModel):

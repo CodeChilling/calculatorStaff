@@ -45,7 +45,7 @@ async def get_options():
         years_experience = df["Years Experience"].dropna().tolist()
         salaries = df["Salaries"].dropna().tolist()
         categories = df["Category"].dropna().tolist()
-        promedios = df["Salaries"].groupby(df["Positions"]).median().to_dict()
+        promedios = df["Salaries"].groupby(df["Category"]).median().to_dict()
 
         return JSONResponse(
             content={
