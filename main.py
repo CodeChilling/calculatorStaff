@@ -8,6 +8,7 @@ from os import getenv
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
+from helpers.createListObj import create_list_objects
 from models.cotization import Cotization
 
 app = FastAPI()
@@ -42,18 +43,21 @@ async def get_options():
         technologies = df["Technologies"].dropna().tolist()
         ubication = df["Ubication"].dropna().tolist()
         english_level = df["Level English"].dropna().tolist()
-        years_experience = df["Years Experience"].dropna().tolist()
+        years_experience = df["Years Experience"].dropna().to_list()
         salaries = df["Salaries"].dropna().tolist()
         categories = df["Category"].dropna().tolist()
         promedios = df["Salaries"].groupby(df["Category"]).median().to_dict()
+
+        finalExperienceList = create_list_objects(years_experience)
+        finalEnglishLevelList = create_list_objects(english_level)
 
         return JSONResponse(
             content={
                     "positions": positions,
                     "technologies": technologies,
                     "ubication": ubication,
-                    "english_level": english_level,
-                    "years_experience": years_experience,
+                    "english_level": finalEnglishLevelList,
+                    "years_experience": finalExperienceList,
                     "salaries": salaries,
                     "categories": categories,
                     "despDesarrolladores": promedios
