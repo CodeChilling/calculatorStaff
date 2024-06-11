@@ -8,6 +8,7 @@ from os import getenv
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
+from helpers.clear_up import Paths, get_Data, get_elements, get_english_level, get_technologies
 from helpers.createListObj import create_list_objects
 from models.cotization import Cotization
 
@@ -15,8 +16,6 @@ app = FastAPI()
 handler = Mangum(app)
 
 load_dotenv()
-
-# base_url = getenv("EXCEL_URL")
 
 origin = {
     'http://localhost:5173',
@@ -33,35 +32,34 @@ app.add_middleware(
 @app.get("/positions")
 async def get_options():
     try:
-        response = requests.get(getenv("EXCEL_URL"))
-        response.raise_for_status()
-        
-        excel_data = BytesIO(response.content)
-        df = pd.read_excel(excel_data)
-        
-        positions = df["Positions"].dropna().tolist()
-        technologies = df["Technologies"].dropna().tolist()
-        ubication = df["Ubication"].dropna().tolist()
-        english_level = df["Level English"].dropna().tolist()
-        years_experience = df["Years Experience"].dropna().to_list()
-        salaries = df["Salaries"].dropna().tolist()
-        categories = df["Category"].dropna().tolist()
-        promedios = df["Salaries"].groupby(df["Category"]).median().to_dict()
+      response = requests.get(getenv("EXCEL_URL"))
+      response.raise_for_status()
+      
+      excel_data = BytesIO(response.content)
+      df = pd.read_excel(excel_data)
+      
+      positions = df["Positions"].dropna().tolist()
+      technologies = df["Technologies"].dropna().tolist()
+      ubication = df["Ubication"].dropna().tolist()
+      english_level = df["Level English"].dropna().tolist()
+      years_experience = df["Years Experience"].dropna().to_list()
+      salaries = df["Salaries"].dropna().tolist()
+      categories = df["Category"].dropna().tolist()
+      promedios = df["Salaries"].groupby(df["Category"]).median().to_dict()
+      finalExperienceList = create_list_objects(years_experience)
+      finalEnglishLevelList = create_list_objects(english_level)
 
-        finalExperienceList = create_list_objects(years_experience)
-        finalEnglishLevelList = create_list_objects(english_level)
-
-        return JSONResponse(
-            content={
-                    "positions": positions,
-                    "technologies": technologies,
-                    "ubication": ubication,
-                    "english_level": finalEnglishLevelList,
-                    "years_experience": finalExperienceList,
-                    "salaries": salaries,
-                    "categories": categories,
-                    "despDesarrolladores": promedios
-                }
+      return JSONResponse(
+          content={
+              "positions": positions,
+              "technologies": technologies,
+              "ubication": ubication,
+              "english_level": finalEnglishLevelList,
+              "years_experience": finalExperienceList,
+              "salaries": salaries,
+              "categories": categories,
+              "despDesarrolladores": promedios
+            }
         )
     
     except requests.exceptions.HTTPError as errh:
@@ -137,10 +135,53 @@ def get_current_info(currentData: Cotization):
     except requests.exceptions.HTTPError as errh:
         raise HTTPException(status_code=500, detail=f"HTTP error: {errh}")
     except requests.exceptions.ConnectionError as errc:
-        raise HTTPException(status_code=500, detail=f"Connection error: {errc}")
+        raise HTTPException(status_code=405, detail=f"Connection error: {errc}")
     except requests.exceptions.Timeout as errt:
-        raise HTTPException(status_code=500, detail=f"Timeout: {errt}")
+        raise HTTPException(status_code=401, detail=f"Timeout: {errt}")
     except requests.exceptions.RequestException as err:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {err}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing the Excel file: {e}")
+        raise HTTPException(status_code=400, detail=f"Error processing the Excel file: {e}")
+    
+
+@app.get("/replica")
+async def get_info_total():
+    try:
+        dfDATA = get_Data(path=Paths.DATA)
+        dfMATRIZ = get_Data(path=Paths.MATRIZ)
+
+        positions = get_elements(dfDATA, "Position", isCapitalize=True)
+
+        EnglishLevelList = get_english_level(dfDATA, "English Proficiency")
+        finalEnglishLevelList = create_list_objects(EnglishLevelList)
+
+        technologies = get_technologies(dfDATA)
+
+        years_experience = get_elements(dfMATRIZ, "Years Experience")
+        finalExperienceList = create_list_objects(years_experience)
+
+        ubication = get_elements(dfMATRIZ, "País", isCapitalize=True)
+
+        return JSONResponse(
+          status_code=200,
+          content={
+            "positions": positions,
+            "technologies": technologies,
+            "ubication": ubication,
+            "english_level": finalEnglishLevelList,
+            "years_experience": finalExperienceList,
+          }
+        )
+
+    except requests.exceptions.HTTPError as errh:
+        raise HTTPException(status_code=500, detail=f"HTTP error: {errh}")
+    except requests.exceptions.ConnectionError as errc:
+        raise HTTPException(status_code=405, detail=f"Connection error: {errc}")
+    except requests.exceptions.Timeout as errt:
+        raise HTTPException(status_code=401, detail=f"Timeout: {errt}")
+    except requests.exceptions.RequestException as err:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {err}")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error processing the Excel file: {e}")
+
+    
