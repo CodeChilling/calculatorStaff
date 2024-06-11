@@ -76,12 +76,13 @@ async def get_options():
 
 
 @app.get("/getCities", response_model=list[str])
-def get_cities(country: str = Query(..., title="Country", description="El país del que se desea obtener las ciudades", example="Colombia", alias="country", min_length=1, max_length=50, regex="^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$")):
+def get_cities(country: str = Query(..., title="Country", description="El país del que se desea obtener las ciudades", example="Colombia", alias="country", min_length=5, max_length=20)):
     try:
       result = get_Data(Paths.MATRIZ)
       cities = get_cities_api(result, country)
       
       return JSONResponse(
+          status_code=200,
           content={
               "cities": cities
           }
