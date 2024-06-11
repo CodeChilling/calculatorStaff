@@ -103,11 +103,9 @@ def get_cities(country: str = Query(..., title="Country", description="El país 
 @app.post("/cotization")
 def get_current_info(currentData: Cotization):
     try:
-        response = requests.get(getenv("EXCEL_URL"))
-        response.raise_for_status()
-        
-        excel_data = BytesIO(response.content)
-        df = pd.read_excel(excel_data)
+        df = get_Data(Paths.DATA)
+
+        df["Pretension Salarial "] = pd.to_numeric(df["Pretension Salarial "], errors='coerce')
         
         position = currentData.position
         technology = currentData.technology
@@ -115,12 +113,13 @@ def get_current_info(currentData: Cotization):
         english_level = currentData.english_level
         years_experience = currentData.years_experience
         
-        salary = df[(df["Positions"] == position) & 
-                    (df["Technologies"] == technology) & 
-                    (df["Ubication"] == ubication) & 
-                    (df["Level English"] == english_level) & 
-                    (df["Years Experience"] == years_experience)]["Salaries"].values[0]
+        salary = df[(df["Position"] == position) & 
+                    (df["Nombre Lenguaje Principal"] == technology) & 
+                    (df["Country Location of Consultant"] == ubication) & 
+                    (df["English Proficiency"] == english_level) & 
+                    (df["Experience"] >= years_experience)]["Pretension Salarial "].median()
         
+        print(salary)
         return JSONResponse(
             content={
                 "salary": salary
