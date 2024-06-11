@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import JSONResponse
 import requests
 import pandas as pd
@@ -10,6 +10,7 @@ from mangum import Mangum
 
 from helpers.clear_up import Paths, get_Data, get_elements, get_english_level, get_technologies
 from helpers.createListObj import create_list_objects
+from helpers.get_cities import get_cities_api
 from models.cotization import Cotization
 
 app = FastAPI()
@@ -74,24 +75,17 @@ async def get_options():
         raise HTTPException(status_code=500, detail=f"Error processing the Excel file: {e}")
 
 
-@app.get("/getCities/{country}")
-def get_cities(country):
-    if country == "Colombia":
-        url = "https://api-colombia.com/api/v1/City"
-    else:
-        return "Country not found"
+@app.get("/getCities", response_model=list[str])
+def get_cities(country: str = Query(..., title="Country", description="El país del que se desea obtener las ciudades", example="Colombia", alias="country", min_length=1, max_length=50, regex="^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$")):
     try:
-        response = requests.get(url)
-        response = response.json()
-        placeNames = []
-        [place["name"] for place in response if placeNames.append(place["name"])]
-        # myDf = pd.DataFrame(placeNames, columns=["Cities"])
-        # myDf.to_excel('output.xlsx', index=False)
-        return JSONResponse(
-            content={
-                "cities": placeNames
-            }
-        )
+      result = get_Data(Paths.MATRIZ)
+      cities = get_cities_api(result, country)
+      
+      return JSONResponse(
+          content={
+              "cities": cities
+          }
+      )
 
     except requests.exceptions.HTTPError as errh:
         raise HTTPException(status_code=500, detail=f"HTTP error: {errh}")
