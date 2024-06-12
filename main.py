@@ -105,7 +105,10 @@ def get_current_info(currentData: Cotization):
     try:
         df = get_Data(Paths.DATA)
 
-        df["Pretension Salarial "] = pd.to_numeric(df["Pretension Salarial "], errors='coerce')
+        df["Pretension Salarial "] = df["Pretension Salarial "].str.replace("$", "")
+        df["Pretension Salarial "] = df["Pretension Salarial "].str.replace(",", "")
+        df["Pretension Salarial "] = df["Pretension Salarial "].str.replace(".", "")
+        df["Pretension Salarial "] = pd.to_numeric(df["Pretension Salarial "], errors="coerce")
         
         position = currentData.position
         technology = currentData.technology
@@ -119,7 +122,7 @@ def get_current_info(currentData: Cotization):
                     (df["English Proficiency"] == english_level) & 
                     (df["Experience"] >= years_experience)]["Pretension Salarial "].median()
         
-        print(salary)
+        print({salary})
         return JSONResponse(
             content={
                 "salary": salary
