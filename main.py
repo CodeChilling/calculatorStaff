@@ -157,14 +157,27 @@ async def get_info_total():
         years_experience = get_elements(dfMATRIZ, "Years Experience")
         finalExperienceList = create_list_objects(years_experience)
 
-        ubication = get_elements(dfMATRIZ, "País", isCapitalize=True)
+        ubication = get_elements(dfDATA, "Country Location of Consultant", isCapitalize=True)
+
+        citiesByCountry = []
+        for i in range(len(ubication)):
+            country = ubication[i]
+            ubication[i]= dfDATA[dfDATA["Country Location of Consultant"] == ubication[i]]["City Location of Consultant"].fillna("No city").unique().tolist()
+            print(ubication[i])
+            temp = {
+                country: ubication[i]
+            }
+            citiesByCountry.append(temp)
+
+        print(citiesByCountry)
+
 
         return JSONResponse(
           status_code=200,
           content={
             "positions": positions,
             "technologies": technologies,
-            "ubication": ubication,
+            "ubication": citiesByCountry,
             "english_level": finalEnglishLevelList,
             "years_experience": finalExperienceList,
           }
