@@ -33,7 +33,7 @@ app.add_middleware(
 @app.get("/positions")
 async def get_options():
     try:
-      response = requests.get(getenv("EXCEL_URL")) 
+      response = requests.get(getenv("EXCEL_URL"))
       response.raise_for_status()
       
       excel_data = BytesIO(response.content)
@@ -44,7 +44,9 @@ async def get_options():
       ubication = df["Ubication"].dropna().tolist()
       english_level = df["Level English"].dropna().tolist()
       years_experience = df["Years Experience"].dropna().to_list()
+      salaries = df["Salaries"].dropna().tolist()
       categories = df["Category"].dropna().tolist()
+      promedios = df["Salaries"].groupby(df["Category"]).median().to_dict()
       finalExperienceList = create_list_objects(years_experience)
       finalEnglishLevelList = create_list_objects(english_level)
 
@@ -55,7 +57,9 @@ async def get_options():
               "ubication": ubication,
               "english_level": finalEnglishLevelList,
               "years_experience": finalExperienceList,
+              "salaries": salaries,
               "categories": categories,
+              "despDesarrolladores": promedios
             }
         )
     
@@ -100,52 +104,31 @@ def get_cities(country: str = Query(..., title="Country", description="El país 
 def get_current_info(currentData: Cotization):
     try:
         df = get_Data(Paths.DATA)
+
+        df["Pretension Salarial "] = df["Pretension Salarial "].str.replace("$", "")
+        df["Pretension Salarial "] = df["Pretension Salarial "].str.replace(",", "")
+        df["Pretension Salarial "] = df["Pretension Salarial "].str.replace(".", "")
+        df["Pretension Salarial "] = pd.to_numeric(df["Pretension Salarial "], errors="coerce")
+        
         position = currentData.position
         technology = currentData.technology
         ubication = currentData.ubication
         english_level = currentData.english_level
         years_experience = currentData.years_experience
         
-        experience_start = 0;
-        experience_end = 1;
+        salary = df[(df["Position"] == position) & 
+                    (df["Nombre Lenguaje Principal"] == technology) & 
+                    (df["Country Location of Consultant"] == ubication) & 
+                    (df["English Proficiency"] == english_level) & 
+                    (df["Experience"] >= years_experience)]["Pretension Salarial "].median()
         
-        if years_experience == 0:
-            experience_start = 1
-            experience_end = 2
-        elif years_experience == 1:
-            experience_start = 3
-            experience_end = 4
-        elif years_experience == 2:
-            experience_start = 5
-            experience_end = None
-            
-        if experience_end != None:
-            salary = df[(df["Position"] == position) & 
-                    (df["Nombre Lenguaje Principal"] == technology) & 
-                    (df["Country Location of Consultant"] == ubication) & 
-                    (df["English Proficiency"] == english_level) & 
-                    (df["Experience"] >= float(experience_start))& 
-                    (df["Experience"] <= float(experience_end))]["Pretension Salarial "].median()
-        else:
-            salary = df[(df["Position"] == position) & 
-                    (df["Nombre Lenguaje Principal"] == technology) & 
-                    (df["Country Location of Consultant"] == ubication) & 
-                    (df["English Proficiency"] == english_level) & 
-                    (df["Experience"] >= float(experience_start))]["Pretension Salarial "].median()
+        print({salary})
+        return JSONResponse(
+            content={
+                "salary": salary
+            }
+        )
     
-        if salary:
-            return JSONResponse(
-                content={
-                    "salary": salary
-                }
-            )
-        else:
-            return JSONResponse(
-                content={
-                    "salary": 0
-                }
-            )
-
     except requests.exceptions.HTTPError as errh:
         raise HTTPException(status_code=500, detail=f"HTTP error: {errh}")
     except requests.exceptions.ConnectionError as errc:

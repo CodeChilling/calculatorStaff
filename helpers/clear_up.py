@@ -20,18 +20,9 @@ def get_Data(path: Paths) -> pd.DataFrame:
     response.raise_for_status()
     
     excel_data = BytesIO(response.content)
-    
+
     df = pd.read_excel(excel_data, engine="openpyxl", sheet_name=path.value)
-    df["Pretension Salarial "] = df["Pretension Salarial "].str.replace("$", "")
-    df["Pretension Salarial "] = df["Pretension Salarial "].str.replace(",", "")
-    df["Pretension Salarial "] = df["Pretension Salarial "].str.replace(".", "")
-    df["Pretension Salarial "] = pd.to_numeric(df["Pretension Salarial "], errors="coerce")
-    df['Pretension Salarial '] = df['Pretension Salarial '].fillna(0)
-    df['Experience'] = df['Experience'].fillna(0)
-    df['Country Location of Consultant'] = df['Country Location of Consultant'].fillna("Colombia")
-    df['Nombre Lenguaje Principal'] = df['Nombre Lenguaje Principal'].fillna("No aplica")
-    df['English Proficiency'] = df['English Proficiency'].fillna("A1")
-    df['Position'] = df['Position'].fillna("Technical Leader ")
+    
     return df
 
 
