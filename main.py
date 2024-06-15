@@ -163,13 +163,10 @@ async def get_info_total():
         for i in range(len(ubication)):
             country = ubication[i]
             ubication[i]= dfDATA[dfDATA["Country Location of Consultant"] == ubication[i]]["City Location of Consultant"].fillna("No city").unique().tolist()
-            print(ubication[i])
             temp = {
                 country: ubication[i]
             }
             citiesByCountry.append(temp)
-
-        print(citiesByCountry)
 
 
         return JSONResponse(
