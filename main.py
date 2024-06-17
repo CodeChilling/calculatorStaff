@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import JSONResponse
 import requests
 import pandas as pd
+import math
 from io import BytesIO
 from dotenv import load_dotenv
 from os import getenv
@@ -109,26 +110,63 @@ def get_current_info(currentData: Cotization):
         df["Pretension Salarial "] = df["Pretension Salarial "].str.replace(",", "")
         df["Pretension Salarial "] = df["Pretension Salarial "].str.replace(".", "")
         df["Pretension Salarial "] = pd.to_numeric(df["Pretension Salarial "], errors="coerce")
+        df["Pretension Salarial "] = df["Pretension Salarial "].fillna(0)
+       
         
         position = currentData.position
         technology = currentData.technology
-        ubication = currentData.ubication
+        city = currentData.city
+        country = currentData.country
         english_level = currentData.english_level
         years_experience = currentData.years_experience
         
-        salary = df[(df["Position"] == position) & 
-                    (df["Nombre Lenguaje Principal"] == technology) & 
-                    (df["Country Location of Consultant"] == ubication) & 
-                    (df["English Proficiency"] == english_level) & 
-                    (df["Experience"] >= years_experience)]["Pretension Salarial "].median()
+        experience_start = 0;
+        experience_end = 1;
         
-        print({salary})
-        return JSONResponse(
-            content={
-                "salary": salary
-            }
-        )
-    
+        if years_experience == 0:
+            experience_start = 1
+            experience_end = 2
+        elif years_experience == 1:
+            experience_start = 3
+            experience_end = 4
+        elif years_experience == 2:
+            experience_start = 5
+            experience_end = None
+        
+        print(currentData)
+     
+        if experience_end != None:
+            salary = df[(df["Position"] == position) & 
+                    (df["Nombre Lenguaje Principal"] == technology) & 
+                    (df["Country Location of Consultant"] == country) &
+                    (df["City Location of Consultant"] == city) & 
+                    (df["English Proficiency"] == english_level) & 
+                    (df["Experience"] >= float(experience_start))& 
+                    (df["Experience"] <= float(experience_end))]["Pretension Salarial "].median()
+        else:
+            salary = df[(df["Position"] == position) & 
+                    (df["Nombre Lenguaje Principal"] == technology) & 
+                    (df["Country Location of Consultant"] == country) &
+                    (df["City Location of Consultant"] == city) &
+                    (df["English Proficiency"] == english_level) & 
+                    (df["Experience"] >= float(experience_start))]["Pretension Salarial "].median()
+        
+        if(not(math.isnan(salary))):
+        
+            print(salary)
+            return JSONResponse(
+                content={
+                    "salary": salary,
+                    "found":True
+                }
+            )
+        else:
+            return JSONResponse(
+                content={
+                    "salary": 0,
+                    "found":False
+                }
+            )
     except requests.exceptions.HTTPError as errh:
         raise HTTPException(status_code=500, detail=f"HTTP error: {errh}")
     except requests.exceptions.ConnectionError as errc:
@@ -193,5 +231,3 @@ async def get_info_total():
         raise HTTPException(status_code=500, detail=f"Unexpected error: {err}")
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error processing the Excel file: {e}")
-
-    
