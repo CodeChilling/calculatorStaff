@@ -20,6 +20,7 @@ load_dotenv()
 
 origin = {
     'http://localhost:5173',
+    'https://nicolas.d3p6mab7kaial0.amplifyapp.com/'
 }
 
 app.add_middleware(
@@ -157,14 +158,14 @@ async def get_info_total():
         years_experience = get_elements(dfMATRIZ, "Years Experience")
         finalExperienceList = create_list_objects(years_experience)
 
-        ubication = get_elements(dfDATA, "Country Location of Consultant", isCapitalize=True)
+        countries = get_elements(dfDATA, "Country Location of Consultant", isCapitalize=True)
 
         citiesByCountry = []
-        for i in range(len(ubication)):
-            country = ubication[i]
-            ubication[i]= dfDATA[dfDATA["Country Location of Consultant"] == ubication[i]]["City Location of Consultant"].fillna("No city").unique().tolist()
+        for i in range(len(countries)):
+            country = countries[i]
+            countries[i]= dfDATA[dfDATA["Country Location of Consultant"] == countries[i]]["City Location of Consultant"].fillna("No city").unique().tolist()
             temp = {
-                country: ubication[i]
+                country: countries[i]
             }
             citiesByCountry.append(temp)
 
