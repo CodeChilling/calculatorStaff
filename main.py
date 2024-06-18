@@ -7,7 +7,6 @@ from io import BytesIO
 from dotenv import load_dotenv
 from os import getenv
 from fastapi.middleware.cors import CORSMiddleware
-from mangum import Mangum
 
 from helpers.clear_up import Paths, get_Data, get_elements, get_english_level, get_technologies
 from helpers.createListObj import create_list_objects
