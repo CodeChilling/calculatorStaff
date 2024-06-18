@@ -3,7 +3,7 @@ def create_list_objects(currentList: list):
     count = 0
     while count < len(currentList):
         temp = {
-            "value": count + 1,
+            "value": count,
             "label": currentList[count]
         }
         finalList.append(temp)

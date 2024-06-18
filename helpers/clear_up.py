@@ -29,13 +29,13 @@ def get_Data(path: Paths) -> pd.DataFrame:
 def get_elements(data: pd.DataFrame, column: str, isCapitalize: bool = False, isLower: bool = False, isUpper: bool = False) -> list[str]:
     elements: list[str] = data[column].dropna().drop_duplicates().tolist()
 
-    elements = [position.strip() for position in elements]
-    if isCapitalize:
-        elements = [position.capitalize() for position in elements]
-    elif isLower:
-        elements = [position.lower() for position in elements]
-    elif isUpper:
-        elements = [position.upper() for position in elements]
+    # elements = [position.strip() for position in elements]
+    # if isCapitalize:
+    #     elements = [position.capitalize() for position in elements]
+    # elif isLower:
+    #     elements = [position.lower() for position in elements]
+    # elif isUpper:
+    #     elements = [position.upper() for position in elements]
 
     elements = list(set(elements))
 
@@ -51,8 +51,8 @@ def get_technologies(data: pd.DataFrame) -> list[str]:
     column1 = get_elements(data, "Nombre Lenguaje Principal", isCapitalize=True)
     column2 = get_elements(data, "Nombre Lenguaje Secundario", isCapitalize=True)
 
-    column1 = transform_column(column1, [",", " y ", ". ", "  ", ":", "/"])
-    column2 = transform_column(column2, [",", " y ", ". ", "  ", ":", "/"])
+    # column1 = transform_column(column1, [",", " y ", ". ", "  ", ":", "/"])
+    # column2 = transform_column(column2, [",", " y ", ". ", "  ", ":", "/"])
 
     elements: list[str] = []
 
@@ -61,8 +61,8 @@ def get_technologies(data: pd.DataFrame) -> list[str]:
     for element in column2:
         elements.append(element)
 
-    elements = [element.strip() for element in elements]
-    elements = [element.capitalize() for element in elements]
+    # elements = [element.strip() for element in elements]
+    # elements = [element.capitalize() for element in elements]
     elements = list(set(elements))
 
     elements.sort()
@@ -76,6 +76,5 @@ def get_english_level(data: pd.DataFrame, column) -> list[str]:
 
     elements.sort()
     return elements
-
 
 
