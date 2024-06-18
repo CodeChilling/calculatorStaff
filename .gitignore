@@ -1,1 +1,5 @@
 /__pycache__
+/dependencies
+/lambda_layerF
+/lambda_layerNP
+*.zip
