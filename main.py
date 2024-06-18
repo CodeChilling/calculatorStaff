@@ -21,7 +21,7 @@ load_dotenv()
 
 origin = {
     'http://localhost:5173',
-    'https://nicolas.d3p6mab7kaial0.amplifyapp.com/'
+    'https://dev.d1m5iwwmoe1hji.amplifyapp.com'
 }
 
 app.add_middleware(
