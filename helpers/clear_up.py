@@ -10,18 +10,27 @@ from helpers.transformColumn import transform_column
 load_dotenv()
 
 class Paths(Enum):
-    DATA = "Data"
+    DATA = "Tarifas"
     MATRIZ = "Matriz"
 
 
 def get_Data(path: Paths) -> pd.DataFrame:
 
-    response = requests.get(getenv("EXCEL_URL"))
+    link1 = getenv("EXCEL_URL")
+    link2 = getenv("EXCEL_URL_CONSOLIDADO")
+
+    if path.value == "Matriz":
+        response = requests.get(link1)
+    else:
+        response = requests.get(link2)
+    
     response.raise_for_status()
     
     excel_data = BytesIO(response.content)
 
     df = pd.read_excel(excel_data, engine="openpyxl", sheet_name=path.value)
+
+    df.columns = [column.strip() for column in df.columns]
     
     return df
 
@@ -48,18 +57,18 @@ def get_elements(data: pd.DataFrame, column: str, isCapitalize: bool = False, is
 
 
 def get_technologies(data: pd.DataFrame) -> list[str]:
-    column1 = get_elements(data, "Nombre Lenguaje Principal", isCapitalize=True)
-    column2 = get_elements(data, "Nombre Lenguaje Secundario", isCapitalize=True)
+    column1 = get_elements(data, "Lenguaje Principal", isCapitalize=True)
+    # column2 = get_elements(data, "Nombre Lenguaje Secundario", isCapitalize=True)
 
-    # column1 = transform_column(column1, [",", " y ", ". ", "  ", ":", "/"])
+    column1 = transform_column(column1, [",", " y ", ". ", "  ", ":", "/"])
     # column2 = transform_column(column2, [",", " y ", ". ", "  ", ":", "/"])
 
     elements: list[str] = []
 
     for element in column1:
         elements.append(element)
-    for element in column2:
-        elements.append(element)
+    # for element in column2:
+    #     elements.append(element)
 
     # elements = [element.strip() for element in elements]
     # elements = [element.capitalize() for element in elements]
