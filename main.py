@@ -6,7 +6,6 @@ from io import BytesIO
 from dotenv import load_dotenv
 from os import getenv
 from fastapi.middleware.cors import CORSMiddleware
-from mangum import Mangum
 
 from helpers.clear_up import Paths, get_Data, get_elements, get_english_level, get_technologies
 from helpers.createListObj import create_list_objects
@@ -14,7 +13,6 @@ from helpers.get_cities import get_cities_api
 from models.cotization import Cotization
 
 app = FastAPI()
-handler = Mangum(app)
 
 load_dotenv()
 
@@ -30,75 +28,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
-
-@app.get("/positions")
-async def get_options():
-    try:
-      response = requests.get(getenv("EXCEL_URL"))
-      response.raise_for_status()
-      
-      excel_data = BytesIO(response.content)
-      df = pd.read_excel(excel_data)
-      
-      positions = df["Positions"].dropna().tolist()
-      technologies = df["Technologies"].dropna().tolist()
-      ubication = df["Ubication"].dropna().tolist()
-      english_level = df["Level English"].dropna().tolist()
-      years_experience = df["Years Experience"].dropna().to_list()
-      salaries = df["Salaries"].dropna().tolist()
-      categories = df["Category"].dropna().tolist()
-      promedios = df["Salaries"].groupby(df["Category"]).median().to_dict()
-      finalExperienceList = create_list_objects(years_experience)
-      finalEnglishLevelList = create_list_objects(english_level)
-
-      return JSONResponse(
-          content={
-              "positions": positions,
-              "technologies": technologies,
-              "ubication": ubication,
-              "english_level": finalEnglishLevelList,
-              "years_experience": finalExperienceList,
-              "salaries": salaries,
-              "categories": categories,
-              "despDesarrolladores": promedios
-            }
-        )
-    
-    except requests.exceptions.HTTPError as errh:
-        raise HTTPException(status_code=500, detail=f"HTTP error: {errh}")
-    except requests.exceptions.ConnectionError as errc:
-        raise HTTPException(status_code=500, detail=f"Connection error: {errc}")
-    except requests.exceptions.Timeout as errt:
-        raise HTTPException(status_code=500, detail=f"Timeout: {errt}")
-    except requests.exceptions.RequestException as err:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {err}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing the Excel file: {e}")
-
-
-@app.get("/getCities", response_model=list[str])
-def get_cities(country: str = Query(..., title="Country", description="El país del que se desea obtener las ciudades", example="Colombia", alias="country", min_length=5, max_length=20)):
-    try:
-      result = get_Data(Paths.MATRIZ)
-      cities = get_cities_api(result, country)
-      
-      return JSONResponse(
-          status_code=200,
-          content={
-              "cities": cities
-          }
-      )
-
-    except requests.exceptions.HTTPError as errh:
-        raise HTTPException(status_code=500, detail=f"HTTP error: {errh}")
-    except requests.exceptions.ConnectionError as errc:
-        raise HTTPException(status_code=500, detail=f"Connection error: {errc}")
-    except requests.exceptions.Timeout as errt:
-        raise HTTPException(status_code=500, detail=f"Timeout: {errt}")
-    except requests.exceptions.RequestException as err:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {err}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing the Excel file: {e}")
 
 
 @app.post("/cotization")
@@ -163,7 +92,7 @@ async def get_info_total():
         citiesByCountry = []
         for i in range(len(countries)):
             country = countries[i]
-            countries[i]= dfDATA[dfDATA["Country Location of Consultant"] == countries[i]]["City Location of Consultant"].fillna("No city").unique().tolist()
+            countries[i]= dfDATA[dfDATA["Country Location of Consultant"] == countries[i]]["Ciudad"].fillna("No city").unique().tolist()
             temp = {
                 country: countries[i]
             }
