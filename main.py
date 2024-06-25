@@ -36,10 +36,10 @@ def get_current_info(currentData: Cotization):
     try:
         df = get_Data(Paths.DATA)
 
-        df["Pretension Salarial"] = df["Pretension Salarial"].str.replace("$", "")
-        df["Pretension Salarial"] = df["Pretension Salarial"].str.replace(",", "")
-        df["Pretension Salarial"] = df["Pretension Salarial"].str.replace(".", "")
-        df["Pretension Salarial"] = pd.to_numeric(df["Pretension Salarial"], errors="coerce")
+        df["Aspiración Salarial"] = df["Aspiración Salarial"].str.replace("$", "")
+        df["Aspiración Salarial"] = df["Aspiración Salarial"].str.replace(",", "")
+        df["Aspiración Salarial"] = df["Aspiración Salarial"].str.replace(".", "")
+        df["Aspiración Salarial"] = pd.to_numeric(df["Aspiración Salarial"], errors="coerce")
         
         position = currentData.position
         technology = currentData.technology
@@ -47,7 +47,6 @@ def get_current_info(currentData: Cotization):
         country = currentData.country
         english_level = currentData.english_level
         years_experience = currentData.years_experience
-        
         
         if years_experience == 0:
             experience_start = 1
@@ -63,12 +62,12 @@ def get_current_info(currentData: Cotization):
      
         if experience_end != None:
             salary = df[(df["Position"] == position) & 
-                    (df["Nombre Lenguaje Principal"] == technology) & 
+                    (df["Lenguaje Principal"] == technology) & 
                     (df["Country Location of Consultant"] == country) &
-                    (df["City Location of Consultant"] == city) & 
+                    (df["Ciudad"] == city) & 
                     (df["English Proficiency"] == english_level) & 
-                    (df["Experience"] >= float(experience_start))& 
-                    (df["Experience"] <= float(experience_end))]["Pretension Salarial "].median()
+                    (df["Años de Experiencia"] >= float(experience_start))& 
+                    (df["Años de Experiencia"] <= float(experience_end))]["Pretension Salarial"].median()
         else:
             salary = df[(df["Position"] == position) & 
                     (df["Nombre Lenguaje Principal"] == technology) & 
