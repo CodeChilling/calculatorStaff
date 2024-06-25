@@ -21,7 +21,7 @@ app = FastAPI()
 
 load_dotenv()
 
-origin = {"http://localhost:5173", "https://dev.d1m5iwwmoe1hji.amplifyapp.com"}
+origin = {"http://localhost:5173", "https://dev.dxpw4u1ezw02d.amplifyapp.com"}
 
 app.add_middleware(
     CORSMiddleware,
