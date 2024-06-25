@@ -1,11 +1,10 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 import requests
 import pandas as pd
 import math
 from io import BytesIO
 from dotenv import load_dotenv
-from os import getenv
 from fastapi.middleware.cors import CORSMiddleware
 
 from helpers.clear_up import (
@@ -16,7 +15,6 @@ from helpers.clear_up import (
     get_technologies,
 )
 from helpers.createListObj import create_list_objects
-from helpers.get_cities import get_cities_api
 from models.cotization import Cotization
 
 app = FastAPI()
