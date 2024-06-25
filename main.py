@@ -36,12 +36,10 @@ def get_current_info(currentData: Cotization):
     try:
         df = get_Data(Paths.DATA)
 
-        df["Pretension Salarial "] = df["Pretension Salarial "].str.replace("$", "")
-        df["Pretension Salarial "] = df["Pretension Salarial "].str.replace(",", "")
-        df["Pretension Salarial "] = df["Pretension Salarial "].str.replace(".", "")
-        df["Pretension Salarial "] = pd.to_numeric(df["Pretension Salarial "], errors="coerce")
-        df["Pretension Salarial "] = df["Pretension Salarial "].fillna(0)
-       
+        df["Pretension Salarial"] = df["Pretension Salarial"].str.replace("$", "")
+        df["Pretension Salarial"] = df["Pretension Salarial"].str.replace(",", "")
+        df["Pretension Salarial"] = df["Pretension Salarial"].str.replace(".", "")
+        df["Pretension Salarial"] = pd.to_numeric(df["Pretension Salarial"], errors="coerce")
         
         position = currentData.position
         technology = currentData.technology
@@ -50,8 +48,6 @@ def get_current_info(currentData: Cotization):
         english_level = currentData.english_level
         years_experience = currentData.years_experience
         
-        experience_start = 0;
-        experience_end = 1;
         
         if years_experience == 0:
             experience_start = 1
