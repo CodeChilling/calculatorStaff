@@ -40,7 +40,7 @@ def get_current_info(currentData: Cotization):
         print(currentData)
         df = get_Data(Paths.DATA)
         print(df["Aspiración Salarial"])
-      
+
         position = currentData.position
         technology = currentData.technology
         city = currentData.city
@@ -54,11 +54,10 @@ def get_current_info(currentData: Cotization):
         elif years_experience == 1:
             experience_start = 3
             experience_end = 4
-        elif years_experience == 2:
+        else:
             experience_start = 5
             experience_end = None
 
-        print(currentData)
 
         if experience_end != None:
             salary = df[
@@ -73,9 +72,9 @@ def get_current_info(currentData: Cotization):
         else:
             salary = df[
                 (df["Position"] == position)
-                & (df["Nombre Lenguaje Principal"] == technology)
+                & (df["Lenguaje Principal"] == technology)
                 & (df["Country Location of Consultant"] == country)
-                & (df["City Location of Consultant"] == city)
+                & (df["Ciudad"] == city)
                 & (df["English Proficiency"] == english_level)
                 & (df["Años de Experiencia"] >= float(experience_start))
             ]["Aspiración Salarial"].median()
