@@ -35,10 +35,10 @@ def get_current_info(currentData: Cotization):
     try:
         df = get_Data(Paths.DATA)
 
-        df["Pretension Salarial"] = df["Pretension Salarial"].str.replace("$", "")
-        df["Pretension Salarial"] = df["Pretension Salarial"].str.replace(",", "")
-        df["Pretension Salarial"] = df["Pretension Salarial"].str.replace(".", "")
-        df["Pretension Salarial"] = pd.to_numeric(df["Pretension Salarial"], errors="coerce")
+        df["Aspiración Salarial"] = df["Aspiración Salarial"].str.replace("$", "")
+        df["Aspiración Salarial"] = df["Aspiración Salarial"].str.replace(",", "")
+        df["Aspiración Salarial"] = df["Aspiración Salarial"].str.replace(".", "")
+        df["Aspiración Salarial"] = pd.to_numeric(df["Aspiración Salarial"], errors="coerce")
         
         position = currentData.position
         technology = currentData.technology
@@ -47,10 +47,10 @@ def get_current_info(currentData: Cotization):
         years_experience = currentData.years_experience
         
         salary = df[(df["Position"] == position) & 
-                    (df["Nombre Lenguaje Principal"] == technology) & 
+                    (df["Lenguaje Principal"] == technology) & 
                     (df["Country Location of Consultant"] == ubication) & 
                     (df["English Proficiency"] == english_level) & 
-                    (df["Experience"] >= years_experience)]["Pretension Salarial"].median()
+                    (df["Años de Experiencia"] >= years_experience)]["Aspiración Salarial"].median()
         
         print({salary})
         return JSONResponse(
