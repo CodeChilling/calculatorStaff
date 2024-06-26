@@ -16,8 +16,10 @@ from helpers.clear_up import (
 )
 from helpers.createListObj import create_list_objects
 from models.cotization import Cotization
+from mangum import Mangum
 
 app = FastAPI()
+
 
 load_dotenv()
 
@@ -35,9 +37,7 @@ app.add_middleware(
 @app.post("/cotization")
 def get_current_info(currentData: Cotization):
     try:
-        print(currentData)
         df = get_Data(Paths.DATA)
-        print(df["Aspiración Salarial"])
 
         position = currentData.position
         technology = currentData.technology
@@ -77,12 +77,11 @@ def get_current_info(currentData: Cotization):
                 & (df["Años de Experiencia"] >= float(experience_start))
             ]["Aspiración Salarial"].median()
 
-        if not (math.isnan(salary)):
-
             print(salary)
+
+        if not (math.isnan(salary)):
             return JSONResponse(content={"salary": salary, "found": True})
         else:
-            print(salary)
             return JSONResponse(content={"salary": 0, "found": False})
     except requests.exceptions.HTTPError as errh:
         raise HTTPException(status_code=500, detail=f"HTTP error: {errh}")
