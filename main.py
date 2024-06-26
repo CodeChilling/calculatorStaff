@@ -16,7 +16,6 @@ from helpers.clear_up import (
 )
 from helpers.createListObj import create_list_objects
 from models.cotization import Cotization
-from mangum import Mangum
 
 app = FastAPI()
 
