@@ -19,11 +19,16 @@ from models.cotization import Cotization
 from mangum import Mangum
 
 app = FastAPI()
+handler = Mangum(app)
 
 
 load_dotenv()
 
-origin = {"http://localhost:5173", "https://dev.dxpw4u1ezw02d.amplifyapp.com"}
+origin = {
+    "http://localhost:5173", 
+    "https://dev.dxpw4u1ezw02d.amplifyapp.com",
+    'https://bxvjx5jk-5173.use2.devtunnels.ms'
+}
 
 app.add_middleware(
     CORSMiddleware,
