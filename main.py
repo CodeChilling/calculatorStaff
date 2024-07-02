@@ -18,11 +18,16 @@ from helpers.createListObj import create_list_objects
 from models.cotization import Cotization
 
 app = FastAPI()
+handler = Mangum(app)
 
 
 load_dotenv()
 
-origin = {"http://localhost:5173", "https://dev.dxpw4u1ezw02d.amplifyapp.com"}
+origin = {
+    "http://localhost:5173", 
+    "https://dev.dxpw4u1ezw02d.amplifyapp.com",
+    'https://bxvjx5jk-5173.use2.devtunnels.ms'
+}
 
 app.add_middleware(
     CORSMiddleware,
@@ -65,7 +70,7 @@ def get_current_info(currentData: Cotization):
                 & (df["English Proficiency"] == english_level)
                 & (df["Años de Experiencia"] >= float(experience_start))
                 & (df["Años de Experiencia"] <= float(experience_end))
-            ]["Aspiración Salarial"].median()
+            ]["Cobro Mensual COP"].median()
         else:
             salary = df[
                 (df["Position"] == position)
@@ -74,7 +79,7 @@ def get_current_info(currentData: Cotization):
                 & (df["Ciudad"] == city)
                 & (df["English Proficiency"] == english_level)
                 & (df["Años de Experiencia"] >= float(experience_start))
-            ]["Aspiración Salarial"].median()
+            ]["Cobro Mensual COP"].median()
 
             print(salary)
 
