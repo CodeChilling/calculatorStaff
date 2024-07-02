@@ -71,7 +71,7 @@ def get_current_info(currentData: Cotization):
                 & (df["English Proficiency"] == english_level)
                 & (df["Años de Experiencia"] >= float(experience_start))
                 & (df["Años de Experiencia"] <= float(experience_end))
-            ]["Aspiración Salarial"].median()
+            ]["Cobro Mensual COP"].median()
         else:
             salary = df[
                 (df["Position"] == position)
@@ -80,7 +80,7 @@ def get_current_info(currentData: Cotization):
                 & (df["Ciudad"] == city)
                 & (df["English Proficiency"] == english_level)
                 & (df["Años de Experiencia"] >= float(experience_start))
-            ]["Aspiración Salarial"].median()
+            ]["Cobro Mensual COP"].median()
 
             print(salary)
 
